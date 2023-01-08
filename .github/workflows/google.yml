@@ -94,9 +94,9 @@ jobs:
         # replacing the image name etc. in the k8s template
         ls -hal
         sed "s,IMAGE_PULL_POLICY,Always,g" ./worker-k8s/deploy/worker-deployment.yaml > worker-deployment.yaml
-        sed "s,WORKER_IMAGE,$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE2:$GITHUB_SHA,g" worker-deployment.yaml > worker-deployment.yaml
+        sed -i "s,WORKER_IMAGE,$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE2:$GITHUB_SHA,g" worker-deployment.yaml
         sed "s,IMAGE_PULL_POLICY,Always,g" ./worker-k8s/deploy/dispatcher-deployment.yaml > dispatcher-deployment.yaml
-        sed "s,DISPATCHER_IMAGE,$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE1:$GITHUB_SHA,g" dispatcher-deployment.yaml > dispatcher-deployment.yaml
+        sed -i "s,DISPATCHER_IMAGE,$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE1:$GITHUB_SHA,g" dispatcher-deployment.yaml
         ls -hal
         kubectl apply -f worker-deployment.yaml
         kubectl apply -f dispatcher-deployment.yaml
