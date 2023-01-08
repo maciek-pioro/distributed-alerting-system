@@ -100,5 +100,7 @@ jobs:
         ls -hal
         kubectl apply -f worker-deployment.yaml
         kubectl apply -f dispatcher-deployment.yaml
+        kubectl apply -f ./worker-k8s/deploy/roles.yaml
+        kubectl apply -f ./worker-k8s/deploy/hpa.yaml
         kubectl rollout status deployment/$DEPLOYMENT_NAME
         kubectl get services -o wide
