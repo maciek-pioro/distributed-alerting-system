@@ -17,7 +17,7 @@ on:
     branches: [ "main" ]
 
 env:
-  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  PROJECT_ID: irio-solution
   GAR_LOCATION: europe-central2 # region of the Artifact Registry
   GKE_CLUSTER: autopilot-cluster-1    # TODO: update to cluster name
   GKE_ZONE: europe-central2   # TODO: update to cluster zone
