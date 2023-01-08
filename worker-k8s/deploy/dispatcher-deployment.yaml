@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dispatcher
+  labels:
+    app: dispatcher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dispatcher
+  template:
+    metadata:
+      labels:
+        app: dispatcher
+    spec:
+      containers:
+        - name: dispatcher
+          image: DISPATCHER_IMAGE
+          imagePullPolicy: IMAGE_PULL_POLICY
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/etc/keys/google-credentials.json"
+          volumeMounts:
+            - name: google-credentials
+              mountPath: "/etc/keys"
+              readOnly: true
+      volumes:
+        - name: google-credentials
+          secret:
+            secretName: keys
