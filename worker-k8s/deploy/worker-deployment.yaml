@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  labels:
+    app: worker
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: WORKER_IMAGE
+          imagePullPolicy: IMAGE_PULL_POLICY
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/etc/keys/google-credentials.json"
+          volumeMounts:
+            - name: google-credentials
+              mountPath: "/etc/keys"
+              readOnly: true
+      volumes:
+        - name: google-credentials
+          secret:
+            secretName: keys
