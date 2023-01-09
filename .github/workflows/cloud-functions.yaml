@@ -1,7 +1,7 @@
 on:
   push:
     branches: ["main"]
-    paths: ["cloud-functions"]
+    paths: ["cloud-functions/**"]
 
 jobs:
   job_id:
