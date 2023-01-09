@@ -67,11 +67,6 @@ jobs:
         --memory=128M \
         --source='cloud-functions/ack-endpoint' \
         --entry-point='handle_request'
- \
---source=. \
---entry-point=hello_get \
---trigger-http \
---allow-unauthenticated
 
     # Example of using the output
 #     - id: 'test'
