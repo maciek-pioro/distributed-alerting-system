@@ -31,7 +31,7 @@ jobs:
       with:
         name: 'first-sender'
         runtime: 'python310'
-        entrypoint: 'handle_first_email'
+        entry_point: 'handle_first_email'
         memory_mb: 128
         region: 'europe-central2'
         source_dir: 'cloud-functions/first-sender'
@@ -41,7 +41,7 @@ jobs:
       with:
         name: 'second-sender'
         runtime: 'python310'
-        entrypoint: 'handle_second_email'
+        entry_point: 'handle_second_email'
         memory_mb: 128
         region: 'europe-central2'
         source_dir: 'cloud-functions/second-sender'
@@ -51,7 +51,7 @@ jobs:
       with:
         name: 'ack-endpoint'
         runtime: 'python310'
-        entrypoint: 'handle_request'
+        entry_point: 'handle_request'
         memory_mb: 128
         region: 'europe-central2'
         source_dir: 'cloud-functions/ack-endpoint'
