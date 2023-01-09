@@ -15,6 +15,7 @@ name: Build and Deploy to GKE
 on:
   push:
     branches: [ "main" ]
+    paths: [ "worker-k8s" ]
 
 env:
   PROJECT_ID: irio-solution
