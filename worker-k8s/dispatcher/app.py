@@ -48,13 +48,24 @@ def get_ready_workers():
             res.append(pod)
     return res
 
-
-import logging
-
+def are_there_other_dispatchers():
+    pods = CORE_API.list_namespaced_pod("default")
+    dispatchers = 0
+    for pod in pods.items:
+        if (
+            pod.metadata.labels.get("app") == "dispatcher" and not pod.status.container_statuses[0].state.terminated
+        ):
+            dispatchers += 1
+    return dispatchers > 1
 
 def main():
     workers_ids = set()
     while True:
+        print("Checking if there are other dispatchers")
+        if are_there_other_dispatchers():
+            print("There are other dispatchers, waiting")
+            time.sleep(60)
+            continue
         print("Checking workers")
         ready_workers = get_ready_workers()
         print(f"Ready workers: {len(ready_workers)}")
