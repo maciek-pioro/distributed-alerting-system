@@ -140,48 +140,54 @@ async def worker_coroutine(
                 await asyncio.sleep(remaining_time_seconds)
                 print("Woke up")
             handling_time_start = time.perf_counter()
-            async with aiohttp.request(
-                "GET",
-                service_data.url,
-                allow_redirects=False,
-                timeout=aiohttp.ClientTimeout(total=MAX_RESPONSE_TIME_SECONDS),
-            ) as rq:
-                now = datetime.datetime.now()
-                data.last_response_time = now
-                if rq.ok:
-                    data.last_ok_response_time = now
-                    await db.collection(COLLECTION).document(
-                        str(service_data.id_)
-                    ).update(
-                        {
-                            "last_response_time": format_date(data.last_response_time),
-                            "last_ok_response_time": format_date(
-                                data.last_ok_response_time
-                            ),
-                        }
+            
+            try:
+                async with aiohttp.request(
+                    "GET",
+                    service_data.url,
+                    allow_redirects=False,
+                    timeout=aiohttp.ClientTimeout(total=MAX_RESPONSE_TIME_SECONDS),
+                ) as rq:
+                    status_ok = rq.ok
+            except asyncio.exceptions.TimeoutError:
+                status_ok = False
+
+            now = datetime.datetime.now()
+            data.last_response_time = now
+            if status_ok:
+                data.last_ok_response_time = now
+                await db.collection(COLLECTION).document(
+                    str(service_data.id_)
+                ).update(
+                    {
+                        "last_response_time": format_date(data.last_response_time),
+                        "last_ok_response_time": format_date(
+                            data.last_ok_response_time
+                        ),
+                    }
+                )
+            else:
+                if data.first_bad_response_time is None or (
+                    data.last_ok_response_time is not None
+                    and data.last_ok_response_time > data.first_bad_response_time
+                ):
+                    data.first_bad_response_time = now
+                await db.collection(COLLECTION).document(
+                    str(service_data.id_)
+                ).update(
+                    {
+                        "last_response_time": format_date(data.last_response_time),
+                        "first_bad_response_time": format_date(
+                            data.first_bad_response_time
+                        ),
+                    }
+                )
+                if now - data.first_bad_response_time > datetime.timedelta(
+                    minutes=data.alert_window_minutes
+                ):
+                    print(
+                        f"Sending alert for service {service_data.id_} ({service_data.url})"
                     )
-                else:
-                    if data.first_bad_response_time is None or (
-                        data.last_ok_response_time is not None
-                        and data.last_ok_response_time > data.first_bad_response_time
-                    ):
-                        data.first_bad_response_time = now
-                    await db.collection(COLLECTION).document(
-                        str(service_data.id_)
-                    ).update(
-                        {
-                            "last_response_time": format_date(data.last_response_time),
-                            "first_bad_response_time": format_date(
-                                data.first_bad_response_time
-                            ),
-                        }
-                    )
-                    if now - data.first_bad_response_time > datetime.timedelta(
-                        minutes=data.alert_window_minutes
-                    ):
-                        print(
-                            f"Sending alert for service {service_data.id_} ({service_data.url})"
-                        )
 
             handling_time_end = time.perf_counter()
             print(f"Handling time: {handling_time_end - handling_time_start} seconds")
@@ -246,10 +252,9 @@ def set_config():
     return set_new_config
 
 
-# def get_config():
-#     global NUM_WORKERS
-#     global WORKER_ID
-#     return {"num_workers": NUM_WORKERS, "worker_id": WORKER_ID}
+@app.route("/config", methods=["GET"])
+def get_config():
+    return {"min_service_id": MIN_SERVICE_ID, "max_service_id": MAX_SERVICE_ID}
 
 
 @app.route("/schedule", methods=["POST"])
