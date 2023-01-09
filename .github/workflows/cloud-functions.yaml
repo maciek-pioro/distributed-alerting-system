@@ -21,32 +21,36 @@ jobs:
           workload_identity_provider: "projects/7432286469/locations/global/workloadIdentityPools/default-pool/providers/gh-provider"
           service_account: "gh-service-account@irio-solution.iam.gserviceaccount.com"
 
-      - id: "deploy_sender1"
-        uses: "google-github-actions/deploy-cloud-functions@v1"
-        with:
-          name: "first-sender"
-          runtime: "python310"
-          entry_point: "handle_first_email"
-          memory_mb: 128
-          region: "europe-central2"
-          source_dir: "cloud-functions/first-sender"
+    - id: 'deploy_sender1'
+      uses: 'google-github-actions/deploy-cloud-functions@v1'
+      with:
+        name: 'first-sender'
+        runtime: 'python310'
+        entry_point: 'handle_first_email'
+        memory_mb: 128
+        region: 'europe-central2'
+        source_dir: 'cloud-functions/first-sender'
+    
+    - id: 'deploy_sender2'
+      uses: 'google-github-actions/deploy-cloud-functions@v1'
+      with:
+        name: 'second-sender'
+        runtime: 'python310'
+        entry_point: 'handle_second_email'
+        memory_mb: 128
+        region: 'europe-central2'
+        source_dir: 'cloud-functions/second-sender'
+    
+    - id: 'deploy_ack_endpoint'
+      uses: 'google-github-actions/deploy-cloud-functions@v1'
+      with:
+        name: 'ack-endpoint'
+        runtime: 'python310'
+        entry_point: 'handle_request'
+        memory_mb: 128
+        region: 'europe-central2'
+        source_dir: 'cloud-functions/ack-endpoint'
 
-      - id: "deploy_sender2"
-        uses: "google-github-actions/deploy-cloud-functions@v1"
-        with:
-          name: "second-sender"
-          runtime: "python310"
-          entry_point: "handle_second_email"
-          memory_mb: 128
-          region: "europe-central2"
-          source_dir: "cloud-functions/second-sender"
-
-      - id: "deploy_ack_endpoint"
-        uses: "google-github-actions/deploy-cloud-functions@v1"
-        with:
-          name: "ack-endpoint"
-          runtime: "python310"
-          entry_point: "handle_request"
-          memory_mb: 128
-          region: "europe-central2"
-          source_dir: "cloud-functions/ack-endpoint"
+    # Example of using the output
+#     - id: 'test'
+#       run: 'curl "${{ steps.deploy.outputs.url }}"'
