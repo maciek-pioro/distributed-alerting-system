@@ -64,7 +64,7 @@ jobs:
         --gen2 \
         --runtime=python310 \
         --region=$REGION \
-        --memory=128M \
+        --memory=256Mi \
         --source='cloud-functions/ack-endpoint' \
         --entry-point='handle_request'
 
