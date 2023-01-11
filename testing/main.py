@@ -85,7 +85,7 @@ def main():
 
 if __name__ == "__main__":
     #main()
-    print("Job is up and running")
+    print("Job is up and running letsgo")
 
 """
 # Define main script
