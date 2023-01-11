@@ -1,7 +1,7 @@
 on:
   push:
     branches: [ "main" ]
-    paths: ["cloud_functions/**"]
+    paths: ["testing/**"]
 
 env:
   REGION: europe-central2
@@ -28,6 +28,6 @@ jobs:
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v1'
 
-    - id: 'run_cloud_functions_integration_test_job'
-      run: gcloud --quiet beta run jobs execute cloud-functions-integration-test --region europe-central2 
+    - id: 'build_test_container'
+      run: gcloud builds submit --pack image=gcr.io/irio-solution/cloud-functions-integration-test
 
