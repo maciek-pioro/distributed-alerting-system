@@ -1,7 +1,7 @@
 on:
   push:
     branches: [ "main" ]
-    paths: ["cloud_functions/**"]
+    paths: ["cloud-functions/**"]
 
 env:
   REGION: europe-central2
