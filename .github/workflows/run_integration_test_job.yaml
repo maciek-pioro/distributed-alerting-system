@@ -29,5 +29,5 @@ jobs:
       uses: 'google-github-actions/setup-gcloud@v1'
 
     - id: 'run_cloud_functions_integration_test_job'
-      run: gcloud beta run jobs execute job-quickstart --quiet --region europe-central2 
+      run: gcloud --quiet beta run jobs execute job-quickstart --region europe-central2 
 
