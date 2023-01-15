@@ -6,6 +6,7 @@ metadata:
     app: dispatcher
 spec:
   replicas: 1
+  serviceName: dispatcher
   selector:
     matchLabels:
       app: dispatcher
