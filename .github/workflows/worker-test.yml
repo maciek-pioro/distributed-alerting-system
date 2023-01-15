@@ -1,4 +1,4 @@
-name: Build and Deploy to GKE
+name: Deploy worker to Test
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
   setup-build-publish-deploy:
     name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
-    environment: production
+    environment: test
 
     permissions:
       contents: "read"
