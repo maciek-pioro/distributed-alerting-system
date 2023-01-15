@@ -22,6 +22,8 @@ spec:
               value: "/etc/keys/google-credentials.json"
             - name: SERVICES_COLLECTION
               value: "SERVICES_COLLECTION_VALUE"
+            - name: FIRST_EMAIL_TOPIC
+              value: "FIRST_EMAIL_TOPIC_VALUE"
           volumeMounts:
             - name: google-credentials
               mountPath: "/etc/keys"
