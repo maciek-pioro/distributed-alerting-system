@@ -187,6 +187,7 @@ async def worker_coroutine(
         )
 
 
+SERVICES_MUTEX = threading.Lock()
 SERVICE_TASK_MAP = {}
 SERVICE_WAITLIST = []
 is_awaiter_running = False
@@ -195,12 +196,21 @@ is_awaiter_running = False
 async def starter_coroutine():
     while True:
         await asyncio.sleep(5)
+        with SERVICES_MUTEX:
+            while len(SERVICE_WAITLIST) > 0:
+                waiting_item = SERVICE_WAITLIST.pop()
+                SERVICE_TASK_MAP[waiting_item] = asyncio.create_task(
+                    worker_coroutine(waiting_item, DB, None)
+                )
 
-        while len(SERVICE_WAITLIST) > 0:
-            waiting_item = SERVICE_WAITLIST.pop()
-            SERVICE_TASK_MAP[waiting_item] = asyncio.create_task(
-                worker_coroutine(waiting_item, DB, None)
-            )
+            for service_url in SERVICE_TASK_MAP:
+                if (
+                    SERVICE_TASK_MAP[service_url].done()
+                    or SERVICE_TASK_MAP[service_url].cancelled()
+                ):
+                    SERVICE_TASK_MAP[service_url] = asyncio.create_task(
+                        worker_coroutine(service_url, DB, None)
+                    )
 
 
 def awaiter_thread():
@@ -228,19 +238,21 @@ def add_services():
 
 @app.route("/remove", methods=["POST"])
 def remove_services():
-    services = request.json["services"]
-    for service in services:
-        if service in SERVICE_TASK_MAP:
-            SERVICE_TASK_MAP[service].cancel()
-            del SERVICE_TASK_MAP[service]
+    with SERVICES_MUTEX:
+        services = request.json["services"]
+        for service in services:
+            if service in SERVICE_TASK_MAP:
+                SERVICE_TASK_MAP[service].cancel()
+                del SERVICE_TASK_MAP[service]
     return "OK", 200
 
 
 @app.route("/remove_all", methods=["POST"])
 def remove_all():
-    for service, task in SERVICE_TASK_MAP.items():
-        task.cancel()
-        del SERVICE_TASK_MAP[service]
+    with SERVICES_MUTEX:
+        for service, task in SERVICE_TASK_MAP.items():
+            task.cancel()
+            del SERVICE_TASK_MAP[service]
     return "OK", 200
 
 
