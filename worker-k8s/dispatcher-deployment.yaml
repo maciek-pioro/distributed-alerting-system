@@ -1,27 +1,28 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: worker
+  name: dispatcher
   labels:
-    app: worker
+    app: dispatcher
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: worker
+      app: dispatcher
   template:
     metadata:
       labels:
-        app: worker
+        app: dispatcher
     spec:
       containers:
-        - name: worker
-          image: WORKER_IMAGE
-          imagePullPolicy: IMAGE_PULL_POLICY
+        - name: dispatcher
+          image: mpioro/irio-dispatcher:19
+          imagePullPolicy: Never
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: "/etc/keys/google-credentials.json"
-            - name: SERVICES_COLLECTION
-              value: "SERVICES_COLLECTION_VALUE"
+            - name: SERVICES_BQ_TABLE
+              value: "SERVICES_BQ_TABLE_VALUE"
           volumeMounts:
             - name: google-credentials
               mountPath: "/etc/keys"
