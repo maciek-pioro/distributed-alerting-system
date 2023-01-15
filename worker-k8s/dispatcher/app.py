@@ -25,6 +25,7 @@ def get_ready_workers():
     for pod in pods.items:
         if (
             pod.metadata.labels.get("app") == "worker"
+            and pod.status.container_statuses
             and pod.status.container_statuses[0].ready
         ):
             try:
