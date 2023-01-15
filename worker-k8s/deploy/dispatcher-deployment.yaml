@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: dispatcher
   labels:
@@ -21,6 +21,8 @@ spec:
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: "/etc/keys/google-credentials.json"
+            - name: SERVICES_BQ_TABLE
+              value: "SERVICES_BQ_TABLE_VALUE"
           volumeMounts:
             - name: google-credentials
               mountPath: "/etc/keys"
