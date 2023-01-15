@@ -14,6 +14,7 @@ env:
   REPOSITORY: k8s-docker-images # TODO: update to Artifact Registry docker repository
   IMAGE: worker
   SERVICES_COLLECTION_VALUE: services_test
+  FIRST_EMAIL_TOPIC_VALUE: projects/irio-solution/topics/first_email_test
 
 jobs:
   setup-build-publish-deploy:
@@ -68,6 +69,7 @@ jobs:
           sed "s,IMAGE_PULL_POLICY,Always,g" ./worker-k8s/deploy/worker-deployment.yaml > worker-deployment.yaml
           sed -i "s,WORKER_IMAGE,$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA,g" worker-deployment.yaml
           sed -i "s,SERVICES_COLLECTION_VALUE,$SERVICES_COLLECTION_VALUE,g" worker-deployment.yaml
+          sed -i "s,FIRST_EMAIL_TOPIC_VALUE,$FIRST_EMAIL_TOPIC_VALUE,g" worker-deployment.yaml
           ls -hal
           kubectl apply -f worker-deployment.yaml
           kubectl apply -f ./worker-k8s/deploy/roles.yaml

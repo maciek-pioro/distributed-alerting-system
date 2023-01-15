@@ -21,7 +21,9 @@ DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 BQ_CLIENT = bigquery.Client()
 MAIN_THREAD = None
 TASKS = []
-FIRST_EMAIL_TOPIC = "projects/irio-solution/topics/first_email"
+FIRST_EMAIL_TOPIC = os.getenv(
+    "FIRST_EMAIL_TOPIC", "projects/irio-solution/topics/first_email_test"
+)
 
 
 def optionally_parse_date(date):
@@ -171,8 +173,14 @@ async def worker_coroutine(
                 print(f"Sending alert for service {service_url}")
                 await publisher.publish(
                     FIRST_EMAIL_TOPIC,
-                    data=f"Service {service_url} is down".encode("utf-8"),
-                    service_digest=service_digest,
+                    data=json.dumps(
+                        {
+                            "admin_mail1": data.admin_mail1,
+                            "admin_mail2": data.admin_mail2,
+                            "url": service_url,
+                            "allowed_response_time_minutes": data.allowed_response_time_minutes,
+                        }
+                    ).encode("utf-8"),
                 )
                 data.last_alert_time = now
                 await db.collection(COLLECTION).document(service_digest).update(
