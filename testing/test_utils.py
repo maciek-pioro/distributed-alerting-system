@@ -38,3 +38,7 @@ def add_service(firestore_client, bigquery_client, SERVICES_DB_NAME, SERVICES_CO
     print("digest ", service_digest)
     doc_ref = firestore_client.collection(SERVICES_COLLECTION_NAME).document(service_digest)
     doc_ref.set(service)
+
+def remove_service(firestore_client, bigquery_client, SERVICES_DB_NAME, SERVICES_COLLECTION_NAME, service_url, service):
+    # TODO
+    return
