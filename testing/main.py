@@ -57,7 +57,7 @@ def first_admin_reponds(firestore_client, publisher_client, FIRST_EMAIL_TOPIC_pa
         sys.exit(1)
 
     # check if ack server propely logged
-    if not find_appropriate_log(logging_client, "outages", f"Admin 1 acknowledged outage {uuid}"):
+    if not test_utils.find_appropriate_log(logging_client, "outages", f"Admin 1 acknowledged outage {uuid}"):
         print(json.dumps({"message": f"Could not find log about first admin acknowlegdment sent. Url: {BAD_URL}, uuid: {uuid}", "severity": "ERROR"}))
 
     # check that uuid is no longer present in emails_sent store
