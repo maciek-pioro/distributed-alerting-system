@@ -63,6 +63,7 @@ jobs:
       - id: 'deploy_ack_endpoint_test'
         run: |-
           gcloud functions deploy ack-endpoint-test \
+          --set-env-vars EMAILS_SENT_COLLECTION=$EMAILS_SENT_COLLECTION \
           --gen2 \
           --runtime=python310 \
           --region=$REGION \
