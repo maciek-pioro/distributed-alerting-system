@@ -1,0 +1,34 @@
+name: Run test
+on:
+  push:
+    branches: [ "main" ]
+    paths: ["cloud-functions/**", "worker-k8s/dispatcher/**", "worker-k8s/deploy/**", "worker-k8s/worker/**"]
+
+env:
+  REGION: europe-central2
+
+
+jobs:
+  build-push-execute:
+    runs-on: 'ubuntu-latest'
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - uses: 'actions/checkout@v3'
+    
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        token_format: 'access_token'
+        workload_identity_provider: 'projects/7432286469/locations/global/workloadIdentityPools/default-pool/providers/gh-provider'
+        service_account: 'gh-service-account@irio-solution.iam.gserviceaccount.com'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+
+    - name: 'Execute'
+      run: gcloud --quiet beta run jobs execute cloud-functions-integration-test --region europe-central2 
+
