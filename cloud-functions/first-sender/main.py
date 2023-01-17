@@ -8,6 +8,7 @@ from google.cloud import firestore
 from google.cloud import logging
 import uuid
 
+###
 
 def create_email_content(client_details, event_id):
     email_content = f"Your service {client_details['url']} is down.\n" + \
