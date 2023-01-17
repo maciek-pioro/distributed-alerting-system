@@ -82,7 +82,8 @@ jobs:
         --memory=256Mi \
         --source='cloud-functions/first-sender-test' \
         --entry-point='save_send_query_event' \
-        --trigger-event='google.pubsub.topic.publish'
+        --trigger-http \
+        [--allow-unauthenticated]
 
     # Example of using the output
 #     - id: 'test'
