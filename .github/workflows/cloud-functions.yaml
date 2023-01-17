@@ -73,6 +73,16 @@ jobs:
         --source='cloud-functions/ack-endpoint' \
         --entry-point='handle_request'
 
+    - id: 'deploy_email_sender_1'
+      run: |-
+        gcloud functions deploy ack-endpoint \
+        --gen2 \
+        --runtime=python310 \
+        --region=$REGION \
+        --memory=256Mi \
+        --source='cloud-functions/first-sender' \
+        --entry-point='save_send_query_event'
+
     # Example of using the output
 #     - id: 'test'
 #       run: 'curl "${{ steps.deploy.outputs.url }}"'
