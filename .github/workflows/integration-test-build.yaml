@@ -30,5 +30,7 @@ jobs:
       uses: 'google-github-actions/setup-gcloud@v1'
 
     - name: 'Build and Push'
-      run: gcloud builds submit --pack image=gcr.io/irio-solution/cloud-functions-integration-test
+      run: |-
+        cd testing
+        gcloud builds submit --pack image=gcr.io/irio-solution/cloud-functions-integration-test
 
