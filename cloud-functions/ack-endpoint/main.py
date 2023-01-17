@@ -20,3 +20,4 @@ def handle_request(request):
     logger.log_text(f"Admin {admin} acknowledged outage {uuid}.")
     
     return '<html><head>Thank you for acknowledging the outage.</head></html>'
+    
