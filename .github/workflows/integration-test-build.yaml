@@ -33,4 +33,5 @@ jobs:
       run: |-
         cd testing
         gcloud builds submit --pack image=gcr.io/irio-solution/cloud-functions-integration-test
+        cd ..
 
