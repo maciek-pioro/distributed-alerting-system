@@ -12,7 +12,7 @@ import datetime
 PROJECT_ID = os.getenv("PROJECT_ID", "irio-solution")
 FIRST_EMAIL_TOPIC = os.getenv("FIRST_EMAIL_TOPIC", "projects/irio-solution/topics/first_email_test")
 UUIDS_COLLECTION_NAME = os.getenv("UUIDS_COLLECTION", "uuids")
-EMAILS_SENT_COLLECTION_NAME = os.getenv("EMAILS_SENT_COLLECTION", "emails_sent")
+EMAILS_SENT_COLLECTION_NAME = os.getenv("EMAILS_SENT_COLLECTION", "emails_sent_test")
 SERVICES_COLLECTION_NAME = os.getenv("SERVICES_COLLECTION", "services_test")
 SERVICES_DB_NAME = os.getenv("SERVICES_BQ_TABLE", "irio-solution.test.services")
 BAD_URL = "404"
@@ -172,4 +172,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
