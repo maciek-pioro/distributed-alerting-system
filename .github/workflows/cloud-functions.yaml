@@ -1,6 +1,10 @@
 on:
   push:
+<<<<<<< HEAD
     branches: ["main"]
+=======
+    branches: [ "main" ]
+>>>>>>> main
     paths: ["cloud-functions/**"]
 
 env:
@@ -31,6 +35,25 @@ jobs:
 #     - id: 'deploy_sender1'
 #       uses: 'google-github-actions/deploy-cloud-functions@v1'
 #       with:
+<<<<<<< HEAD
+=======
+#         workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+#         service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        token_format: 'access_token'
+        workload_identity_provider: 'projects/7432286469/locations/global/workloadIdentityPools/default-pool/providers/gh-provider'
+        service_account: 'gh-service-account@irio-solution.iam.gserviceaccount.com'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+
+#     - id: 'deploy_sender1'
+#       uses: 'google-github-actions/deploy-cloud-functions@v1'
+#       with:
+>>>>>>> main
 #         name: 'first-sender'
 #         runtime: 'python310'
 #         entry_point: 'handle_first_email'
