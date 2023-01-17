@@ -7,10 +7,10 @@ on:
 
 env:
   REGION: europe-central2
-
+  EMAILS_SENT_COLLECTION: emails_sent
 
 jobs:
-  job_id:
+  deploy_cloud_functions_src_code:
     runs-on: "ubuntu-latest"
     permissions:
       contents: "read"
@@ -27,8 +27,8 @@ jobs:
           workload_identity_provider: "projects/7432286469/locations/global/workloadIdentityPools/default-pool/providers/gh-provider"
           service_account: "gh-service-account@irio-solution.iam.gserviceaccount.com"
 
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v1'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
 
 #     - id: 'deploy_sender1'
 #       uses: 'google-github-actions/deploy-cloud-functions@v1'
@@ -60,15 +60,15 @@ jobs:
 #         region: 'europe-central2'
 #         source_dir: 'cloud-functions/ack-endpoint'
 
-    - id: 'deploy_ack_endpoint'
-      run: |-
-        gcloud functions deploy ack-endpoint \
-        --gen2 \
-        --runtime=python310 \
-        --region=$REGION \
-        --memory=256Mi \
-        --source='cloud-functions/ack-endpoint' \
-        --entry-point='handle_request'
+      - id: 'deploy_ack_endpoint'
+        run: |-
+          gcloud functions deploy ack-endpoint \
+          --gen2 \
+          --runtime=python310 \
+          --region=$REGION \
+          --memory=256Mi \
+          --source='cloud-functions/ack-endpoint' \
+          --entry-point='handle_request'
 
     # Example of using the output
 #     - id: 'test'
