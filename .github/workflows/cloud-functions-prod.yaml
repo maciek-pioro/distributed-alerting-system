@@ -1,3 +1,5 @@
+name: Deploy cloud functions source code to prod components
+
 on:
   push:
     branches: ["main"]
