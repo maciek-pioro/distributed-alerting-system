@@ -1,7 +1,7 @@
 name: Run test
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "test" ]
     paths: ["cloud-functions/**", "worker-k8s/dispatcher/**", "worker-k8s/deploy/**", "worker-k8s/worker/**"]
 
 env:
