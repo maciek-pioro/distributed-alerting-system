@@ -45,7 +45,7 @@ def first_admin_reponds(firestore_client, publisher_client, FIRST_EMAIL_TOPIC_pa
     # wait for an email with outage info and link to come
     msg = acc.wait_for_message()
     try:
-        (ack_url, uuid) = test_utils.extract_url_and_uuid_from_msg(msg)
+        (ack_url, uuid, _) = test_utils.extract_from_msg(msg)
     except Exception:
         print(json.dumps({"message": f"Could not get ack link from email. Email: {msg}", "severity": "ERROR"}))
         sys.exit(1)
