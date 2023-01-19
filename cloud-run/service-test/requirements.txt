@@ -1,0 +1,5 @@
+fastapi>=0.89.1
+pydantic>=1.10.4
+uvicorn>=0.20.0
+google-cloud-logging>=3.4.0
+google-cloud-firestore>=2.9.0
