@@ -1,14 +1,15 @@
+name: Build and push the test to the registry
 on:
   push:
-    branches: [ "main" ]
-    paths: ["cloud-functions/**"]
+    branches: [ "main"]
+    paths: ["testing/**"]
 
 env:
   REGION: europe-central2
 
 
 jobs:
-  job_id:
+  build-push:
     runs-on: 'ubuntu-latest'
     permissions:
       contents: 'read'
@@ -28,6 +29,8 @@ jobs:
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v1'
 
-    - id: 'run_cloud_functions_integration_test_job'
-      run: gcloud --quiet beta run jobs execute cloud-functions-integration-test --region europe-central2 
+    - name: 'Build and Push'
+      run: |-
+        cd testing
+        gcloud builds submit --pack image=gcr.io/irio-solution/cloud-functions-integration-test
 

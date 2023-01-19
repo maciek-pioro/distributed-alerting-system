@@ -2,13 +2,23 @@ from google.cloud import firestore, pubsub_v1, logging, bigquery
 from datetime import datetime
 from hashlib import md5
 
-def extract_url_and_uuid_from_msg(msg):
-    ack_url = msg.text # TODO extract ack url when the mail format is known, for now assuming that text of an email consists only of the url
+def extract_from_msg(msg):
+    # email layout
+    """
+        f"Your service {service_url} is down.\n"
+        + "Click here to acknowledge the outage: "
+        + f"{ack_endpoint')}/?uuid={event_id}&admin=1
+    """
 
-    tmp1 = ack_url.split('/') # ['https:', '', 'ack-server-rlvishyx4a-uc.a.run.app', '?admin=<admin_number>&uuid=<outage_uuid>']
-    tmp2 = tmp1[-1].split('=') # ['?admin', '<admin_number>&uuid', '<outage_uuid>']
-    uuid = tmp2[-1]        
-    return (ack_url, uuid)
+    tmp = msg.text.split("https://")
+    ack_url = "https://" + tmp[-1] # tmp[-1] is the last url in the message
+
+    tmp = ack_url.split('/') # ['https:', '', 'ack-server-rlvishyx4a-uc.a.run.app', '?admin=<admin_number>&uuid=<outage_uuid>']
+    tmp = tmp[-1].split('=') # ['?admin', '<admin_number>&uuid', '<outage_uuid>']
+    tmp1 = tmp[1].split('&') # ['<admin_number>', 'uuid']
+    admin = tmp1[0]
+    uuid = tmp[-1]        
+    return (ack_url, uuid, admin)
 
 def find_appropriate_log(logging_client, logger_name, pattern):
     logger = logging_client.logger(logger_name)
