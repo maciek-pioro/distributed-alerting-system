@@ -85,6 +85,11 @@ def main():
     while True:
         print("Checking workers")
         workers = get_ready_workers()
+        new_services = get_services()
+        added_services = list(set(new_services) - set(service_worker_mapping.keys()))
+        deleted_services = list(set(service_worker_mapping.keys()) - set(new_services))
+        for service in added_services:
+            service_worker_mapping[service] = None
         id_to_worker = {worker.metadata.uid: worker for worker in workers}
         ready_workers_ids = set(id_to_worker.keys())
         newfound_workers = ready_workers_ids - hashring.get_nodes()
@@ -95,8 +100,11 @@ def main():
             hashring.remove_node(worker)
         remove_from_worker = {}
         add_to_worker = {}
-        for service in services:
-            should_be_worker = hashring.get_node(service)
+        for service in service_worker_mapping.keys():
+            if service in deleted_services:
+                should_be_worker = None
+            else:
+                should_be_worker = hashring.get_node(service)
             current_worker = service_worker_mapping[service]
             if should_be_worker != current_worker:
                 if current_worker not in lost_workers and current_worker is not None:
@@ -112,6 +120,8 @@ def main():
             except:
                 print(f"Failed to remove services from worker {worker}")
         for worker, changed_services in add_to_worker.items():
+            if worker is None:
+                continue
             try:
                 if worker in newfound_workers:
                     send_removeall_from_worker(id_to_worker[worker].status.pod_ip)
@@ -120,7 +130,9 @@ def main():
                     service_worker_mapping[service] = worker
             except:
                 print(f"Failed to add services to worker {worker}")
-
+        for service, worker in service_worker_mapping.items():
+            if worker is None:
+                del service_worker_mapping[service]
         time.sleep(60)
 
 
