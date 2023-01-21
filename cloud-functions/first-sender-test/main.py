@@ -1,7 +1,6 @@
 import os
 import base64
 import functions_framework
-import sendgrid
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from google.cloud import firestore
