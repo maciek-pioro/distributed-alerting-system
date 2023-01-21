@@ -175,10 +175,12 @@ async def worker_coroutine(
                     FIRST_EMAIL_TOPIC,
                     data=json.dumps(
                         {
-                            "admin_mail1": data.admin_mail1,
-                            "admin_mail2": data.admin_mail2,
-                            "url": service_url,
-                            "allowed_response_time_minutes": data.allowed_response_time_minutes,
+                            "message": {
+                                "admin_mail1": data.admin_mail1,
+                                "admin_mail2": data.admin_mail2,
+                                "url": service_url,
+                                "allowed_response_time_minutes": data.allowed_response_time_minutes,
+                            }
                         }
                     ).encode("utf-8"),
                 )
