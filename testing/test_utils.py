@@ -37,17 +37,17 @@ def add_service(firestore_client, bigquery_client, SERVICES_DB_NAME, SERVICES_CO
 
     errors = bigquery_client.insert_rows_json(
         SERVICES_DB_NAME, rows_to_insert, row_ids=[None]
-    )  # Make an API request.
+    )
     if errors == []:
-        print("New rows have been added.")
+        print("Added row to " + SERVICES_DB_NAME)
     else:
         print("Encountered errors while inserting rows: {}".format(errors))
 
     # add service monitoring details to firestore
     service_digest = md5(service_url.encode("utf-8")).hexdigest()
-    print("digest ", service_digest)
     doc_ref = firestore_client.collection(SERVICES_COLLECTION_NAME).document(service_digest)
     doc_ref.set(service)
+    print("Added row to " + SERVICES_COLLECTION_NAME)
 
 def remove_service(firestore_client, bigquery_client, SERVICES_DB_NAME, SERVICES_COLLECTION_NAME, service_url, service):
     # TODO
