@@ -75,5 +75,5 @@ jobs:
           ls -hal
           kubectl apply -f dispatcher-deployment.yaml
           kubectl apply -f ./worker-k8s/deploy/roles.yaml
-          kubectl rollout status deployment/$DEPLOYMENT_NAME
+          kubectl rollout status statefulset/$DEPLOYMENT_NAME
           kubectl get services -o wide
