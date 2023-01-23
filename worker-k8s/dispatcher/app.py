@@ -9,7 +9,9 @@ import os
 config.load_incluster_config()
 CORE_API = client.CoreV1Api()
 APPS_API = client.AppsV1Api()
-BQ_CLIENT = bigquery.Client()
+BQ_CLIENT = bigquery.Client(
+    os.getenv("SERVICES_BQ_TABLE_REGION", "irio-solution.test.services")
+)
 SERVICES_BQ_TABLE = os.getenv("SERVICES_BQ_TABLE", "irio-solution.test.services")
 
 

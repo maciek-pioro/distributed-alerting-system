@@ -24,6 +24,8 @@ spec:
               value: "/etc/keys/google-credentials.json"
             - name: SERVICES_BQ_TABLE
               value: "SERVICES_BQ_TABLE_VALUE"
+            - name: SERVICES_BQ_TABLE_REGION
+              value: "SERVICES_BQ_TABLE_REGION_VALUE"
           volumeMounts:
             - name: google-credentials
               mountPath: "/etc/keys"

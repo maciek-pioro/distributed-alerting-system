@@ -14,6 +14,7 @@ env:
   REPOSITORY: k8s-docker-images # TODO: update to Artifact Registry docker repository
   IMAGE: dispatcher
   SERVICES_BQ_TABLE_VALUE: irio-solution.prod.services
+  SERVICES_BQ_TABLE_REGION_VALUE: europe-central2
 
 jobs:
   setup-build-publish-deploy:
@@ -70,6 +71,7 @@ jobs:
           sed "s,IMAGE_PULL_POLICY,Always,g" ./worker-k8s/deploy/dispatcher-deployment.yaml > dispatcher-deployment.yaml
           sed -i "s,DISPATCHER_IMAGE,$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA,g" dispatcher-deployment.yaml
           sed -i "s,SERVICES_BQ_TABLE_VALUE,$SERVICES_BQ_TABLE_VALUE,g" dispatcher-deployment.yaml 
+          sed -i "s,SERVICES_BQ_TABLE_REGION_VALUE,$SERVICES_BQ_TABLE_REGION_VALUE,g" dispatcher-deployment.yaml 
           ls -hal
           kubectl apply -f dispatcher-deployment.yaml
           kubectl apply -f ./worker-k8s/deploy/roles.yaml
