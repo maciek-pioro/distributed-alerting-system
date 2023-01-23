@@ -114,7 +114,13 @@ async def worker_coroutine(
     publisher: pubsub_v1.PublisherClient,
 ):
     service_digest = md5(service_url.encode("utf-8")).hexdigest()
-    data = await get_data_from_firestore(service_digest, db)
+    while True:
+        try:
+            data = await get_data_from_firestore(service_digest, db)
+            break
+        except Exception as e:
+            print(e)
+            await asyncio.sleep(60)
     remaining_time_seconds = seconds_until_next_update(
         data.last_response_time, data.check_interval_minutes
     )
