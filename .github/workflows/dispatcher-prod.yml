@@ -13,7 +13,7 @@ env:
   DEPLOYMENT_NAME: dispatcher # TODO: update to deployment name
   REPOSITORY: k8s-docker-images # TODO: update to Artifact Registry docker repository
   IMAGE: dispatcher
-  SERVICES_BQ_TABLE_VALUE: irio-solution.prod.services
+  SERVICES_BQ_TABLE_VALUE: irio-solution.production.services
   SERVICES_BQ_TABLE_REGION_VALUE: europe-central2
 
 jobs:
