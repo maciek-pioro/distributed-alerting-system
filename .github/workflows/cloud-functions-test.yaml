@@ -39,7 +39,7 @@ jobs:
           --memory=256Mi \
           --source='cloud-functions/first-sender' \
           --entry-point='save_send_query_event' \
-          --trigger-topic=first-email-test'
+          --trigger-topic='first-email-test'
 
       #  TODO: finish second sender deployment
       # - id: "deploy_second_sender"
