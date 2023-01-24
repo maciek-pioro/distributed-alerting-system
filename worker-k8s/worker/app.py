@@ -22,7 +22,7 @@ BQ_CLIENT = bigquery.Client()
 MAIN_THREAD = None
 TASKS = []
 FIRST_EMAIL_TOPIC = os.getenv(
-    "FIRST_EMAIL_TOPIC", "projects/irio-solution/topics/first_email_test"
+    "FIRST_EMAIL_TOPIC", "projects/irio-solution/topics/first-email-test"
 )
 
 
@@ -128,16 +128,15 @@ async def worker_coroutine(
     )
     print(remaining_time_seconds)
     while True:
-        print("entered while")
         if remaining_time_seconds > 0:
             print(f"Waiting {remaining_time_seconds} seconds for service {service_url}")
             await asyncio.sleep(remaining_time_seconds)
-            print("Woke up")
-        print("exited if")
+            print(f"Woke up for service {service_url}")
+
         handling_time_start = time.perf_counter()
 
         try:
-            print("sending request")
+            print(f"sending request for service {service_url}")
             async with aiohttp.request(
                 "GET",
                 service_url,

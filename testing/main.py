@@ -11,7 +11,7 @@ import datetime
 import inspect
 
 PROJECT_ID = os.getenv("PROJECT_ID", "irio-solution")
-FIRST_EMAIL_TOPIC = os.getenv("FIRST_EMAIL_TOPIC", "projects/irio-solution/topics/first_email_test")
+FIRST_EMAIL_TOPIC = os.getenv("FIRST_EMAIL_TOPIC", "projects/irio-solution/topics/first-email-test")
 UUIDS_COLLECTION_NAME = os.getenv("UUIDS_COLLECTION", "uuids_test")
 EMAILS_SENT_COLLECTION_NAME = os.getenv("EMAILS_SENT_COLLECTION", "emails_sent_test")
 SERVICES_COLLECTION_NAME = os.getenv("SERVICES_COLLECTION", "services_test")
@@ -19,7 +19,6 @@ SERVICES_DB_NAME = os.getenv("SERVICES_BQ_TABLE", "irio-solution.test.services")
 TEST1 = os.getenv("TEST1", "True")
 TEST2 = os.getenv("TEST2", "True")
 TEST_SERVICE_BASE_URL = os.getenv("TEST_SERVICE_BASE_URL", "https://service-test-rlvishyx4a-lm.a.run.app/")
-BAD_URL = "404"
 
 """
 def first_admin_reponds(firestore_client, publisher_client, FIRST_EMAIL_TOPIC_path, logging_client):
@@ -70,7 +69,7 @@ def first_admin_reponds(firestore_client, publisher_client, FIRST_EMAIL_TOPIC_pa
 """
 
 def e2e_continious_outage(mailTm, firestore_client, bigquery_client, logging_client):
-    url = BAD_URL
+    url = TEST_SERVICE_BASE_URL
     test_name = "e2e_continious_outage"
     acc1 = mailTm.get_account()
     address1 = acc1.address
