@@ -24,7 +24,7 @@ TASKS = []
 FIRST_EMAIL_TOPIC = os.getenv(
     "FIRST_EMAIL_TOPIC", "projects/irio-solution/topics/first-email-test"
 )
-pubsub_client = pubsub_v1.PublisherClient()  
+pubsub_client = pubsub_v1.PublisherClient()
 
 
 def optionally_parse_date(date):
@@ -78,6 +78,9 @@ class LiveServiceData:
             "admin_mail1": self.admin_mail1,
             "admin_mail2": self.admin_mail2,
         }
+
+    def __repr__(self) -> str:
+        return f"LiveServiceData({self.to_dict()})"
 
 
 def parse_date(date):
@@ -133,6 +136,8 @@ async def worker_coroutine(
             print(f"Waiting {remaining_time_seconds} seconds for service {service_url}")
             await asyncio.sleep(remaining_time_seconds)
             print(f"Woke up for service {service_url}")
+
+        print(data)
 
         handling_time_start = time.perf_counter()
 
@@ -191,7 +196,9 @@ async def worker_coroutine(
                         }
                     ).encode("utf-8"),
                 )
-                print(f"Sent alert for service {service_url} on topic {FIRST_EMAIL_TOPIC}. Response: {res}")
+                print(
+                    f"Sent alert for service {service_url} on topic {FIRST_EMAIL_TOPIC}. Response: {res}"
+                )
                 data.last_alert_time = now
                 await db.collection(COLLECTION).document(service_digest).update(
                     {
