@@ -150,7 +150,10 @@ async def worker_coroutine(
                 timeout=aiohttp.ClientTimeout(total=MAX_RESPONSE_TIME_SECONDS),
             ) as rq:
                 status_ok = rq.ok
-        except asyncio.exceptions.TimeoutError:
+        except (
+            asyncio.exceptions.TimeoutError,
+            aiohttp.client_exceptions.ClientConnectorError,
+        ):
             status_ok = False
 
         now = datetime.datetime.utcnow()
