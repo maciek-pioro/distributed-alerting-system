@@ -183,7 +183,7 @@ async def worker_coroutine(
                 data.last_alert_time is None
                 or (data.last_alert_time < data.first_bad_response_time)
             ):
-                res = await publisher.publish(
+                publish_request = publisher.publish(
                     FIRST_EMAIL_TOPIC,
                     data=json.dumps(
                         {
@@ -196,6 +196,10 @@ async def worker_coroutine(
                         }
                     ).encode("utf-8"),
                 )
+                while True:
+                    if publish_request.done():
+                        break
+                    await asyncio.sleep(0.1)
                 print(
                     f"Sent alert for service {service_url} on topic {FIRST_EMAIL_TOPIC}. Response: {res}"
                 )
