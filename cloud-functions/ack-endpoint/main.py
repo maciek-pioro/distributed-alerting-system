@@ -14,7 +14,7 @@ def handle_request(request):
     admin = args["admin"]
 
     db = firestore.Client(project=PROJECT_ID)
-    db.collection(EMAILS_SENT_COLLECTION_NAME).document(uuid).update({u'ack_by': admin, 'ack': True})
+    db.collection(EMAILS_SENT_COLLECTION_NAME).document(uuid).set({u'ack_by': admin, 'ack': True}, merge=True)
 
     logging_client = logging.Client()
     logger = logging_client.logger("outages")
