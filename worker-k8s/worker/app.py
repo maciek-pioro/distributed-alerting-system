@@ -91,6 +91,8 @@ async def get_data_from_firestore(service_digest: str, db) -> LiveServiceData:
     firestore_dict = (
         await db.collection(COLLECTION).document(service_digest).get()
     ).to_dict()
+    if firestore_dict is None:
+        raise Exception(f"Service (digest: {service_digest}) not found in firestore")
     print(service_digest)
     print("fs_dict", firestore_dict)
     return LiveServiceData.from_dict(firestore_dict)
@@ -114,7 +116,13 @@ async def worker_coroutine(
     publisher: pubsub_v1.PublisherClient,
 ):
     service_digest = md5(service_url.encode("utf-8")).hexdigest()
-    data = await get_data_from_firestore(service_digest, db)
+    while True:
+        try:
+            data = await get_data_from_firestore(service_digest, db)
+            break
+        except Exception as e:
+            print(f"Error getting data from firestore for service {service_url}: {e}")
+            await asyncio.sleep(60)
     remaining_time_seconds = seconds_until_next_update(
         data.last_response_time, data.check_interval_minutes
     )
