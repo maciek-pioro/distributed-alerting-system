@@ -43,11 +43,10 @@ def set_email_sent(client_details, event_id):
         {
             "last_email_time": firestore.SERVER_TIMESTAMP,
             "ack": False,
+            "ack_by": -1,  # Non-existing admin
             "url": client_details.get("url", "service unknown"),
             "admin_mail2": client_details["admin_mail2"],
-            "allowed_response_time_minutes": client_details[
-                "allowed_response_time_minutes"
-            ],
+            "allowed_response_time_minutes": client_details["allowed_response_time_minutes"],
         }
     )
 
@@ -58,7 +57,7 @@ def queue_next_email(client_details, event_id):
 
     project = os.environ.get("GCP_PROJECT")
     queue = os.environ.get("EMAIL_QUEUE")
-    location = os.environ.get("GCP_REGION")
+    location = os.environ.get("REGION")
     url = os.environ.get("SECOND_SENDER_ENDPOINT")
     payload = {'event_id': event_id}
     in_seconds = client_details["allowed_response_time_minutes"] * 60

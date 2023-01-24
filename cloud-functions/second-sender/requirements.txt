@@ -1,0 +1,5 @@
+functions-framework==3.*
+sendgrid>=6.7.1
+google-cloud-logging>=3.4.0
+google-cloud-firestore>=2.9.1
+google-cloud-tasks>=2.12.1
