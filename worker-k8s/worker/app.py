@@ -24,6 +24,7 @@ TASKS = []
 FIRST_EMAIL_TOPIC = os.getenv(
     "FIRST_EMAIL_TOPIC", "projects/irio-solution/topics/first-email-test"
 )
+pubsub_client = pubsub_v1.PublisherClient()  
 
 
 def optionally_parse_date(date):
@@ -217,7 +218,7 @@ async def starter_coroutine():
             while len(SERVICE_WAITLIST) > 0:
                 waiting_item = SERVICE_WAITLIST.pop()
                 SERVICE_TASK_MAP[waiting_item] = asyncio.create_task(
-                    worker_coroutine(waiting_item, DB, None)
+                    worker_coroutine(waiting_item, DB, pubsub_client)
                 )
 
             for service_url in SERVICE_TASK_MAP:
@@ -226,7 +227,7 @@ async def starter_coroutine():
                     or SERVICE_TASK_MAP[service_url].cancelled()
                 ):
                     SERVICE_TASK_MAP[service_url] = asyncio.create_task(
-                        worker_coroutine(service_url, DB, None)
+                        worker_coroutine(service_url, DB, pubsub_client)
                     )
 
 
