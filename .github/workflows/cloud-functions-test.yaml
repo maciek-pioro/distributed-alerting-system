@@ -27,10 +27,10 @@ jobs:
           workload_identity_provider: "projects/7432286469/locations/global/workloadIdentityPools/default-pool/providers/gh-provider"
           service_account: "gh-service-account@irio-solution.iam.gserviceaccount.com"
 
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v1"
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
 
-      - id: "deploy_first_sender"
+      - id: 'deploy_first_sender'
         run: |-
           gcloud functions deploy first-sender-test \
           --gen2 \
@@ -52,7 +52,7 @@ jobs:
       #     --source='cloud-functions/second-sender' \
       #     --entry-point='save_send_query_event'
 
-      - id: "deploy_ack_endpoint"
+      - id: 'deploy_ack_endpoint'
         run: |-
           gcloud functions deploy ack-endpoint-test \
           --set-env-vars EMAILS_SENT_COLLECTION=$EMAILS_SENT_COLLECTION \
