@@ -77,7 +77,7 @@ def e2e_continious_outage(mailTm, firestore_client, bigquery_client, logging_cli
     address2 = acc2.address
     service = {
         "check_interval_minutes": 1,
-        "alert_window_minutes": 2,
+        "alert_window_minutes": 1,
         "allowed_response_time_minutes": 30,
         "admin_mail1": address1,
         "admin_mail2": address2
@@ -109,6 +109,7 @@ def e2e_continious_outage(mailTm, firestore_client, bigquery_client, logging_cli
         print(json.dumps({"test_name": test_name, "message": f"Send of first email logged properly. Url: {url}, uuid: {uuid}", "severity": "INFO"}))
 
     # wait for an email with outage info and link to come
+    print(json.dumps({"test_name": test_name, "message": f"Waiting for a message to {address1}.", "severity": "DEBUG"}))
     msg = acc1.wait_for_message()
     try:
         (ack_url, uuid, admin) = test_utils.extract_from_msg(msg)
@@ -149,6 +150,9 @@ def e2e_continious_outage(mailTm, firestore_client, bigquery_client, logging_cli
     msgs = acc1.get_messages()
     if len(msgs) > 1:
         print(json.dumps({"test_name": test_name, "message": f"Sent too many ({len(msgs)}) emails to admin {address1} after they've already clicked the link.", "severity": "ERROR"}))
+    else:
+        print(json.dumps({"test_name": test_name, "message": f"Sent only one email to admin {address1}.", "severity": "INFO"}))
+        
 
     test_utils.remove_service(firestore_client, bigquery_client, SERVICES_DB_NAME, SERVICES_COLLECTION_NAME, url, service)
     print(json.dumps({"test_name": test_name, "message": f"Test done.", "severity": "INFO"}))
