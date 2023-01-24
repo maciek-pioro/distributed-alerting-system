@@ -201,7 +201,7 @@ async def worker_coroutine(
                         break
                     await asyncio.sleep(0.1)
                 print(
-                    f"Sent alert for service {service_url} on topic {FIRST_EMAIL_TOPIC}. Response: {res}"
+                    f"Sent alert for service {service_url} on topic {FIRST_EMAIL_TOPIC}. Response: {publish_request}"
                 )
                 data.last_alert_time = now
                 await db.collection(COLLECTION).document(service_digest).update(
