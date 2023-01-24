@@ -177,8 +177,7 @@ async def worker_coroutine(
                 data.last_alert_time is None
                 or (data.last_alert_time < data.first_bad_response_time)
             ):
-                print(f"Sending alert for service {service_url} on topic {FIRST_EMAIL_TOPIC}")
-                await publisher.publish(
+                res = await publisher.publish(
                     FIRST_EMAIL_TOPIC,
                     data=json.dumps(
                         {
@@ -191,6 +190,7 @@ async def worker_coroutine(
                         }
                     ).encode("utf-8"),
                 )
+                print(f"Sent alert for service {service_url} on topic {FIRST_EMAIL_TOPIC}. Response: {res}")
                 data.last_alert_time = now
                 await db.collection(COLLECTION).document(service_digest).update(
                     {
