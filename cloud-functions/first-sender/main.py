@@ -10,7 +10,7 @@ from google.cloud import firestore, tasks_v2, logging
 from google.protobuf import duration_pb2, timestamp_pb2
 from datetime import datetime
 
-
+#
 def create_email_content(client_details, event_id):
     email_content = (
             f"Your service {client_details['url']} is down.\n"
