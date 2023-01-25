@@ -6,7 +6,7 @@ import datetime
 import functions_framework
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
-from google.cloud import firestore, tasks_v2
+from google.cloud import firestore, tasks_v2, logging
 from google.protobuf import duration_pb2, timestamp_pb2
 from datetime import datetime
 

@@ -38,7 +38,7 @@ def e2e_continious_outage(mailTm, firestore_client, bigquery_client, logging_cli
     # add service to bigquery and firestore
     test_utils.add_service(firestore_client, bigquery_client, SERVICES_DB_NAME, SERVICES_COLLECTION_NAME, url, service)
 
-    n = 2
+    n = 4
     # sleep for 4 minutes
     print(json.dumps({"test_name": test_name, "message": f"Sleep for {n} minutes", "severity": "INFO"}))
     time.sleep(60*n)
@@ -98,7 +98,7 @@ def e2e_continious_outage(mailTm, firestore_client, bigquery_client, logging_cli
 
     
     n = 2
-    # sleep for 4 minutes
+    # sleep for 2 minutes
     print(json.dumps({"test_name": test_name, "message": f"Sleep for {n} minutes", "severity": "INFO"}))
     time.sleep(60*n)
     print(json.dumps({"test_name": test_name, "message": f"Woke up from {n} minutes nap", "severity": "INFO"}))
