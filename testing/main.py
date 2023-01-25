@@ -11,7 +11,7 @@ import datetime
 import inspect
 
 PROJECT_ID = os.getenv("PROJECT_ID", "irio-solution")
-FIRST_EMAIL_TOPIC = os.getenv("FIRST_EMAIL_TOPIC", "projects/irio-solution/topics/first_email_test")
+FIRST_EMAIL_TOPIC = os.getenv("FIRST_EMAIL_TOPIC", "projects/irio-solution/topics/first-email-test")
 UUIDS_COLLECTION_NAME = os.getenv("UUIDS_COLLECTION", "uuids_test")
 EMAILS_SENT_COLLECTION_NAME = os.getenv("EMAILS_SENT_COLLECTION", "emails_sent_test")
 SERVICES_COLLECTION_NAME = os.getenv("SERVICES_COLLECTION", "services_test")
@@ -19,7 +19,6 @@ SERVICES_DB_NAME = os.getenv("SERVICES_BQ_TABLE", "irio-solution.test.services")
 TEST1 = os.getenv("TEST1", "True")
 TEST2 = os.getenv("TEST2", "True")
 TEST_SERVICE_BASE_URL = os.getenv("TEST_SERVICE_BASE_URL", "https://service-test-rlvishyx4a-lm.a.run.app/")
-BAD_URL = "404"
 
 """
 def first_admin_reponds(firestore_client, publisher_client, FIRST_EMAIL_TOPIC_path, logging_client):
@@ -70,7 +69,7 @@ def first_admin_reponds(firestore_client, publisher_client, FIRST_EMAIL_TOPIC_pa
 """
 
 def e2e_continious_outage(mailTm, firestore_client, bigquery_client, logging_client):
-    url = BAD_URL
+    url = TEST_SERVICE_BASE_URL
     test_name = "e2e_continious_outage"
     acc1 = mailTm.get_account()
     address1 = acc1.address
@@ -78,7 +77,7 @@ def e2e_continious_outage(mailTm, firestore_client, bigquery_client, logging_cli
     address2 = acc2.address
     service = {
         "check_interval_minutes": 1,
-        "alert_window_minutes": 2,
+        "alert_window_minutes": 1,
         "allowed_response_time_minutes": 30,
         "admin_mail1": address1,
         "admin_mail2": address2
@@ -110,6 +109,7 @@ def e2e_continious_outage(mailTm, firestore_client, bigquery_client, logging_cli
         print(json.dumps({"test_name": test_name, "message": f"Send of first email logged properly. Url: {url}, uuid: {uuid}", "severity": "INFO"}))
 
     # wait for an email with outage info and link to come
+    print(json.dumps({"test_name": test_name, "message": f"Waiting for a message to {address1}.", "severity": "DEBUG"}))
     msg = acc1.wait_for_message()
     try:
         (ack_url, uuid, admin) = test_utils.extract_from_msg(msg)
@@ -150,6 +150,9 @@ def e2e_continious_outage(mailTm, firestore_client, bigquery_client, logging_cli
     msgs = acc1.get_messages()
     if len(msgs) > 1:
         print(json.dumps({"test_name": test_name, "message": f"Sent too many ({len(msgs)}) emails to admin {address1} after they've already clicked the link.", "severity": "ERROR"}))
+    else:
+        print(json.dumps({"test_name": test_name, "message": f"Sent only one email to admin {address1}.", "severity": "INFO"}))
+        
 
     test_utils.remove_service(firestore_client, bigquery_client, SERVICES_DB_NAME, SERVICES_COLLECTION_NAME, url, service)
     print(json.dumps({"test_name": test_name, "message": f"Test done.", "severity": "INFO"}))

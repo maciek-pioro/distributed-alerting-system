@@ -14,7 +14,7 @@ env:
   REPOSITORY: k8s-docker-images # TODO: update to Artifact Registry docker repository
   IMAGE: dispatcher
   SERVICES_BQ_TABLE_VALUE: irio-solution.test.services
-  SERVICES_BQ_TABLE_REGION_VALUE: europe-central2
+  SERVICES_BQ_TABLE_REGION_VALUE: EU
 
 jobs:
   setup-build-publish-deploy:

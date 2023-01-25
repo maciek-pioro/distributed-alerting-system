@@ -22,8 +22,9 @@ BQ_CLIENT = bigquery.Client()
 MAIN_THREAD = None
 TASKS = []
 FIRST_EMAIL_TOPIC = os.getenv(
-    "FIRST_EMAIL_TOPIC", "projects/irio-solution/topics/first_email_test"
+    "FIRST_EMAIL_TOPIC", "projects/irio-solution/topics/first-email-test"
 )
+pubsub_client = pubsub_v1.PublisherClient()
 
 
 def optionally_parse_date(date):
@@ -78,6 +79,9 @@ class LiveServiceData:
             "admin_mail2": self.admin_mail2,
         }
 
+    def __repr__(self) -> str:
+        return f"LiveServiceData({self.to_dict()})"
+
 
 def parse_date(date):
     return datetime.datetime.strptime(date, DATE_FORMAT)
@@ -128,16 +132,17 @@ async def worker_coroutine(
     )
     print(remaining_time_seconds)
     while True:
-        print("entered while")
         if remaining_time_seconds > 0:
             print(f"Waiting {remaining_time_seconds} seconds for service {service_url}")
             await asyncio.sleep(remaining_time_seconds)
-            print("Woke up")
-        print("exited if")
+            print(f"Woke up for service {service_url}")
+
+        print(data)
+
         handling_time_start = time.perf_counter()
 
         try:
-            print("sending request")
+            print(f"sending request for service {service_url}")
             async with aiohttp.request(
                 "GET",
                 service_url,
@@ -145,7 +150,10 @@ async def worker_coroutine(
                 timeout=aiohttp.ClientTimeout(total=MAX_RESPONSE_TIME_SECONDS),
             ) as rq:
                 status_ok = rq.ok
-        except asyncio.exceptions.TimeoutError:
+        except (
+            asyncio.exceptions.TimeoutError,
+            aiohttp.client_exceptions.ClientConnectorError,
+        ):
             status_ok = False
 
         now = datetime.datetime.utcnow()
@@ -178,8 +186,7 @@ async def worker_coroutine(
                 data.last_alert_time is None
                 or (data.last_alert_time < data.first_bad_response_time)
             ):
-                print(f"Sending alert for service {service_url}")
-                await publisher.publish(
+                publish_request = publisher.publish(
                     FIRST_EMAIL_TOPIC,
                     data=json.dumps(
                         {
@@ -191,6 +198,13 @@ async def worker_coroutine(
                             }
                         }
                     ).encode("utf-8"),
+                )
+                while True:
+                    if publish_request.done():
+                        break
+                    await asyncio.sleep(0.1)
+                print(
+                    f"Sent alert for service {service_url} on topic {FIRST_EMAIL_TOPIC}. Response: {publish_request}"
                 )
                 data.last_alert_time = now
                 await db.collection(COLLECTION).document(service_digest).update(
@@ -218,7 +232,7 @@ async def starter_coroutine():
             while len(SERVICE_WAITLIST) > 0:
                 waiting_item = SERVICE_WAITLIST.pop()
                 SERVICE_TASK_MAP[waiting_item] = asyncio.create_task(
-                    worker_coroutine(waiting_item, DB, None)
+                    worker_coroutine(waiting_item, DB, pubsub_client)
                 )
 
             for service_url in SERVICE_TASK_MAP:
@@ -227,7 +241,7 @@ async def starter_coroutine():
                     or SERVICE_TASK_MAP[service_url].cancelled()
                 ):
                     SERVICE_TASK_MAP[service_url] = asyncio.create_task(
-                        worker_coroutine(service_url, DB, None)
+                        worker_coroutine(service_url, DB, pubsub_client)
                     )
 
 
