@@ -126,5 +126,6 @@ def save_send_query_event(cloud_event):
     event_id = str(uuid.uuid4())
     send_email(client_details, event_id)
     set_email_sent(client_details, event_id)
-    logger.log_text(f"(Service {client_details['url']} outage {event_id}): first email sent {datetime.now()}")
+    logger.log_text(json.dumps({"service": client_details['url'], "outage": event_id, "event": f"first email sent {datetime.now()}"}))
+
     queue_next_email(client_details, event_id)

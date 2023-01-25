@@ -4,6 +4,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from google.cloud import firestore, logging
 from datetime import datetime
+import json
 
 
 
@@ -69,7 +70,8 @@ def check_send_event(request):
         if event_details["ack"] is False:
             send_email(event_details, event_id)
             set_email_sent(event_id, logger)
-            logger.log_text(f"(Service {service} outage {event_id}): second email sent {datetime.now()}")
+            logger.log_text(json.dumps({"service": service, "outage": event_id, "event": f"second email sent {datetime.now()}"}))
+
 
     except Exception as e:
         print(e)

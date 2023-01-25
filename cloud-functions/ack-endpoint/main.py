@@ -3,6 +3,7 @@ from google.cloud import firestore
 from google.cloud import logging
 import os
 from datetime import datetime
+import json
 
 PROJECT_ID = os.getenv("GCP_PROJECT")
 EMAILS_SENT_COLLECTION_NAME = os.getenv("EMAILS_SENT_COLLECTION")
@@ -20,9 +21,6 @@ def handle_request(request):
 
     logging_client = logging.Client()
     logger = logging_client.logger("outages")
-    logger.log_text(f"(Service {doc_ref.get().to_dict()['url']} outage {uuid}): {admin} admin ack {datetime.now()}")
-
-    logger.log_text(f"Admin {admin} acknowledged outage {uuid}.")
-
+    logger.log_text(json.dumps({"service": doc_ref.get().to_dict()['url'], "outage": uuid, "event": f"{admin} admin ack {datetime.now()}"}))
 
     return '<html><head>Thank you for acknowledging the outage.</head></html>'
