@@ -64,3 +64,6 @@ jobs:
           --memory=256Mi \
           --source='cloud-functions/ack-endpoint' \
           --entry-point='handle_request'
+          
+      - name: 'Execute'
+        run: gcloud --quiet beta run jobs execute cloud-functions-integration-test --region europe-central2 

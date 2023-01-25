@@ -14,7 +14,7 @@ env:
   REPOSITORY: k8s-docker-images # TODO: update to Artifact Registry docker repository
   IMAGE: worker
   SERVICES_COLLECTION_VALUE: services_prod
-  FIRST_EMAIL_TOPIC_VALUE: projects/irio-solution/topics/first-email-prod
+  FIRST_EMAIL_TOPIC_VALUE: projects/irio-solution/topics/first-email
 
 jobs:
   setup-build-publish-deploy:
