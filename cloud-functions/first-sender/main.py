@@ -8,6 +8,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from google.cloud import firestore, tasks_v2
 from google.protobuf import duration_pb2, timestamp_pb2
+from datetime import datetime
 
 
 def create_email_content(client_details, event_id):
@@ -59,7 +60,7 @@ def queue_next_email(client_details, event_id):
     queue = os.environ.get("EMAIL_QUEUE")
     location = os.environ.get("REGION")
     url = os.environ.get("SECOND_SENDER_ENDPOINT")
-    payload = {'event_id': event_id}
+    payload = {'event_id': event_id, 'service': client_details['url']}
     in_seconds = client_details["allowed_response_time_minutes"] * 60
     task_name = event_id
     deadline = 5 * in_seconds
@@ -117,10 +118,13 @@ def queue_next_email(client_details, event_id):
 # Triggered from a message on a Cloud Pub/Sub topic.
 @functions_framework.cloud_event
 def save_send_query_event(cloud_event):
+    logging_client = logging.Client()
+    logger = logging_client.logger("outages")
     b64encoded = cloud_event.data["message"]["data"]
     b64decoded = base64.b64decode(b64encoded)
     client_details = json.loads(b64decoded)["message"]
     event_id = str(uuid.uuid4())
     send_email(client_details, event_id)
     set_email_sent(client_details, event_id)
+    logger.log_text(f"(Service {client_details['url']} outage {event_id}): first email sent {datetime.now()}")
     queue_next_email(client_details, event_id)

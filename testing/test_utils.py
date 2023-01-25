@@ -1,6 +1,7 @@
 from google.cloud import firestore, pubsub_v1, logging, bigquery
 from datetime import datetime
 from hashlib import md5
+import json
 
 def extract_from_msg(msg):
     # email layout
@@ -16,8 +17,8 @@ def extract_from_msg(msg):
     tmp = ack_url.split('/') # ['https:', '', 'ack-server-rlvishyx4a-uc.a.run.app', '?admin=<admin_number>&uuid=<outage_uuid>']
     tmp = tmp[-1].split('=') # ['?admin', '<admin_number>&uuid', '<outage_uuid>']
     tmp1 = tmp[1].split('&') # ['<admin_number>', 'uuid']
-    admin = tmp1[0]
-    uuid = tmp[-1]        
+    uuid = tmp1[0]
+    admin = tmp[-1]        
     return (ack_url, uuid, admin)
 
 def find_appropriate_log(logging_client, logger_name, pattern):
@@ -27,6 +28,19 @@ def find_appropriate_log(logging_client, logger_name, pattern):
             return True
     return False
 
+def clear_test_tables(firestore_client, bigquery_client, SERVICES_DB_NAME, SERVICES_COLLECTION_NAME):
+    try:
+        query = f"DELETE FROM `{SERVICES_DB_NAME}` WHERE true"
+        query_job = bigquery_client.query(query)
+        res = query_job.result()
+        print(json.dumps({"message": f"deleted rows from {SERVICES_DB_NAME}, res: {res}", "severity": "DEBUG"}))
+    except Exception as e:
+        print(json.dumps({"message": f"failed to delete rows from {SERVICES_DB_NAME}, err: {e}", "severity": "ERROR"}))
+
+    docs = firestore_client.collection(SERVICES_COLLECTION_NAME).list_documents()
+    for doc in docs:
+        doc.delete()
+    print(json.dumps({"message": f"deleted documents from {SERVICES_COLLECTION_NAME}", "severity": "DEBUG"}))
 
 
 def add_service(firestore_client, bigquery_client, SERVICES_DB_NAME, SERVICES_COLLECTION_NAME, service_url, service):
@@ -50,5 +64,7 @@ def add_service(firestore_client, bigquery_client, SERVICES_DB_NAME, SERVICES_CO
     print("Added row to " + SERVICES_COLLECTION_NAME)
 
 def remove_service(firestore_client, bigquery_client, SERVICES_DB_NAME, SERVICES_COLLECTION_NAME, service_url, service):
-    # TODO
+    QUERY = f'DELETE FROM `{SERVICES_DB_NAME}` WHERE url = "{service_url}"'
+    query_job = bigquery_client.query(QUERY)
+    rows = query_job.result() 
     return
