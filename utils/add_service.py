@@ -3,6 +3,7 @@ from hashlib import md5
 import os
 import asyncio
 from google.cloud import firestore, bigquery
+from typing import Optional
 
 # admin_mail1: "example@gmail.com" (string)
 # admin_mail2: "example@gmail.com" (string)
@@ -18,8 +19,10 @@ async def main(
     service: str,
     bigquery_table: str,
     firestore_collection: str,
-    admin1: str,
-    admin2: str,
+    admin_mail1: str,
+    admin_mail2: str,
+    admin_phone1: Optional[str],
+    admin_phone2: Optional[str],
     check_interval_minutes: int,
     alert_window_minutes: int,
     allowed_response_time_minutes: int,
@@ -29,8 +32,10 @@ async def main(
     service_digest = md5(service.encode("utf-8")).hexdigest()
     db.collection(firestore_collection).document(service_digest).set(
         {
-            "admin_mail1": admin1,
-            "admin_mail2": admin2,
+            "admin_mail1": admin_mail1,
+            "admin_mail2": admin_mail2,
+            "admin_phone1": admin_phone1,
+            "admin_phone2": admin_phone2,
             "check_interval_minutes": check_interval_minutes,
             "alert_window_minutes": alert_window_minutes,
             "allowed_response_time_minutes": allowed_response_time_minutes,
@@ -60,6 +65,12 @@ if __name__ == "__main__":
     parser.add_argument("--admin1", type=str, help="Admin 1", required=True)
     parser.add_argument("--admin2", type=str, help="Admin 2", required=True)
     parser.add_argument(
+        "--phone1", type=str, help="Phone 1", required=False, default=None
+    )
+    parser.add_argument(
+        "--phone2", type=str, help="Phone 2", required=False, default=None
+    )
+    parser.add_argument(
         "--check_interval_minutes",
         type=int,
         help="Check interval in minutes",
@@ -84,8 +95,10 @@ if __name__ == "__main__":
             service=args.service,
             bigquery_table=args.bigquery,
             firestore_collection=args.firestore,
-            admin1=args.admin1,
-            admin2=args.admin2,
+            admin_mail1=args.admin1,
+            admin_mail2=args.admin2,
+            admin_phone1=args.phone1,
+            admin_phone2=args.phone2,
             check_interval_minutes=args.check_interval_minutes,
             alert_window_minutes=args.alert_window_minutes,
             allowed_response_time_minutes=args.allowed_response_time_minutes,

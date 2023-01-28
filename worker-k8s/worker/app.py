@@ -45,6 +45,8 @@ class LiveServiceData:
     allowed_response_time_minutes: int
     admin_mail1: str
     admin_mail2: str
+    admin_phone1: Optional[str]
+    admin_phone2: Optional[str]
 
     @classmethod
     def from_dict(cls, dict) -> "LiveServiceData":
@@ -62,6 +64,8 @@ class LiveServiceData:
             allowed_response_time_minutes=dict["allowed_response_time_minutes"],
             admin_mail1=dict["admin_mail1"],
             admin_mail2=dict["admin_mail2"],
+            admin_phone1=dict.get("admin_phone1"),
+            admin_phone2=dict.get("admin_phone2"),
         )
 
     def to_dict(self):
@@ -77,6 +81,8 @@ class LiveServiceData:
             "allowed_response_time_minutes": self.allowed_response_time_minutes,
             "admin_mail1": self.admin_mail1,
             "admin_mail2": self.admin_mail2,
+            "admin_phone1": self.admin_phone1,
+            "admin_phone2": self.admin_phone2,
         }
 
     def __repr__(self) -> str:
@@ -193,6 +199,8 @@ async def worker_coroutine(
                             "message": {
                                 "admin_mail1": data.admin_mail1,
                                 "admin_mail2": data.admin_mail2,
+                                "admin_phone1": data.admin_phone1,
+                                "admin_phone2": data.admin_phone2,
                                 "url": service_url,
                                 "allowed_response_time_minutes": data.allowed_response_time_minutes,
                             }
