@@ -10,6 +10,17 @@ env:
   EMAILS_SENT_COLLECTION: emails_sent_test
   GCP_PROJECT: irio-solution
   EMAIL_QUEUE: second-email-test
+  SECRETS: "ACK_ENDPOINT=ACK_ENDPOINT_TEST:latest,\
+    EMAIL_SENDER=EMAIL_SENDER:latest,\
+    SENDGRID_API_KEY=SENDGRID_API_KEY:latest,\
+    TWILIO_ACCOUNT_SID=TWILIO_ACCOUNT_SID:latest,\
+    TWILIO_AUTH_TOKEN=TWILIO_AUTH_TOKEN:latest,\
+    TWILIO_NUMBER=TWILIO_NUMBER:latest,\
+    GCP_PROJECT=GCP_PROJECT:latest,\
+    EMAIL_COLLECTION=EMAIL_COLLECTION_TEST:latest,\
+    EMAIL_QUEUE=EMAIL_QUEUE_TEST:latest,\
+    REGION=GCP_REGION:latest,\
+    SECOND_SENDER_ENDPOINT=SECOND_SENDER_ENDPOINT_TEST:latest"
 
 jobs:
   deploy_cloud_functions_src_code_to_test:
@@ -29,10 +40,10 @@ jobs:
           workload_identity_provider: "projects/7432286469/locations/global/workloadIdentityPools/default-pool/providers/gh-provider"
           service_account: "gh-service-account@irio-solution.iam.gserviceaccount.com"
 
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v1'
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v1"
 
-      - id: 'deploy_first_sender'
+      - id: "deploy_first_sender"
         run: |-
           gcloud functions deploy first-sender-test \
           --gen2 \
@@ -41,7 +52,8 @@ jobs:
           --memory=256Mi \
           --source='cloud-functions/first-sender' \
           --entry-point='save_send_query_event' \
-          --trigger-topic='first-email-test'
+          --trigger-topic='first-email-test' \
+          --set-secrets=$SECRETS
 
       - id: "deploy_second_sender"
         run: |-
@@ -52,18 +64,19 @@ jobs:
           --memory=256Mi \
           --source='cloud-functions/second-sender' \
           --entry-point='check_send_event' \
-          --trigger-http
+          --trigger-http \
+          --set-secrets=$SECRETS
 
-      - id: 'deploy_ack_endpoint'
+      - id: "deploy_ack_endpoint"
         run: |-
           gcloud functions deploy ack-endpoint-test \
-          --set-env-vars EMAILS_SENT_COLLECTION=$EMAILS_SENT_COLLECTION \
           --gen2 \
           --runtime=python310 \
           --region=$REGION \
           --memory=256Mi \
           --source='cloud-functions/ack-endpoint' \
           --entry-point='handle_request'
-          
-      - name: 'Execute'
-        run: gcloud --quiet beta run jobs execute cloud-functions-integration-test --region europe-central2 
+          --set-secrets=$SECRETS
+
+      - name: "Execute"
+        run: gcloud --quiet beta run jobs execute cloud-functions-integration-test --region europe-central2
