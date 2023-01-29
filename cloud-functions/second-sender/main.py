@@ -21,7 +21,7 @@ def encode_message(message):
 def create_url(event_id):
     json_msg = json.dumps({"uuid": event_id, "admin": 2})
     obfuscated_event = encode_message(json_msg)
-    return f"{os.environ.get('ACK_ENDPOINT')}/{obfuscated_event}"
+    return f"{os.environ.get('ACK_ENDPOINT')}/?event_info={obfuscated_event}"
 
 
 def create_message_content(event_details, event_id):

@@ -11,15 +11,19 @@ EMAILS_SENT_COLLECTION_NAME = os.getenv("EMAIL_COLLECTION")
 
 
 def decode_message(message):
+    print('message, type', message, type(message))
     privkey_raw = os.environ.get("PRIVATE_KEY")
+    print('privkey_raw, type',privkey_raw, type(privkey_raw))
     pk_raw = privkey_raw.replace('\\n', '\n').encode('ascii')
+    print('pk_raw, type',pk_raw, type(pk_raw))
     privkey = rsa.PrivateKey.load_pkcs1(pk_raw)
     dectex = rsa.decrypt(bytes.fromhex(message), privkey)
     return dectex.decode()
 
 
+
 def get_args(request):
-    json_raw = decode_message(request.script_root[1:])
+    json_raw = decode_message(request.args.get("event_info"))
     args = json.loads(json_raw)
     uuid = args["uuid"]
     admin = args["admin"]
