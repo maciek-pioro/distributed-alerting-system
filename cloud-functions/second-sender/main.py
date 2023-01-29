@@ -1,3 +1,4 @@
+import rsa
 import os
 import functions_framework
 from sendgrid import SendGridAPIClient
@@ -8,12 +9,26 @@ import json
 from twilio.rest import Client as TwilioClient
 
 
+def encode_message(message):
+    pubkey_raw = str.encode(os.environ.get("PUBLIC_KEY"))
+    pubkey = rsa.PublicKey.load_pkcs1(pubkey_raw)
+    enctex = rsa.encrypt(message.encode(), pubkey)
+    hex_message = enctex.hex()
+    return hex_message
+
+
+def create_url(event_id):
+    json_msg = json.dumps({"uuid": event_id, "admin": 2})
+    obfuscated_event = encode_message(json_msg)
+    return f"{os.environ.get('ACK_ENDPOINT')}/{obfuscated_event}"
+
+
 def create_message_content(event_details, event_id):
     email_content = (
-        f"Your service {event_details['url']} is down.\n"
-        + f"First email sent at: {str(event_details['last_email_time'])}, but left without acknowledgement.\n"
-        + "Click here to acknowledge the outage: "
-        + f"{os.environ.get('ACK_ENDPOINT')}/?uuid={event_id}&admin=2"
+            f"Your service {event_details['url']} is down.\n"
+            + f"First email sent at: {str(event_details['last_email_time'])}, but left without acknowledgement.\n"
+            + "Click here to acknowledge the outage: "
+            + create_url(event_id)
     )
 
     return email_content
