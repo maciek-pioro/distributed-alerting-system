@@ -10,8 +10,9 @@ from twilio.rest import Client as TwilioClient
 
 
 def encode_message(message):
-    pubkey_raw = str.encode(os.environ.get("PUBLIC_KEY"))
-    pubkey = rsa.PublicKey.load_pkcs1(pubkey_raw)
+    pubkey_raw = os.environ.get("PUBLIC_KEY")
+    pk_raw = pubkey_raw.replace('\\n', '\n').encode('ascii')
+    pubkey = rsa.PublicKey.load_pkcs1(pk_raw)
     enctex = rsa.encrypt(message.encode(), pubkey)
     hex_message = enctex.hex()
     return hex_message

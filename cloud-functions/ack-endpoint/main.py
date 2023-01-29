@@ -11,8 +11,9 @@ EMAILS_SENT_COLLECTION_NAME = os.getenv("EMAIL_COLLECTION")
 
 
 def decode_message(message):
-    privkey_raw = str.encode(os.environ.get("PRIVATE_KEY"))
-    privkey = rsa.PrivateKey.load_pkcs1(privkey_raw)
+    privkey_raw = os.environ.get("PRIVATE_KEY")
+    pk_raw = privkey_raw.replace('\\n', '\n').encode('ascii')
+    privkey = rsa.PrivateKey.load_pkcs1(pk_raw)
     dectex = rsa.decrypt(bytes.fromhex(message), privkey)
     return dectex.decode()
 
