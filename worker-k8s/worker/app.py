@@ -301,9 +301,22 @@ def list_services():
     return {"services": list(SERVICE_TASK_MAP.keys())}
 
 
-@app.route("/health", methods=["GET"])
-def healthcheck():
+HEALTHY = True
+
+
+@app.route("/set_unhealthy", methods=["POST"])
+def set_unhealthy():
+    global HEALTHY
+    HEALTHY = False
     return "OK", 200
+
+
+@app.route("/health", methods=["GET"])
+def health_check():
+    if HEALTHY:
+        return "OK", 200
+    else:
+        return "UNHEALTHY", 500
 
 
 if __name__ == "__main__":
