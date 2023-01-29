@@ -4,16 +4,30 @@ from google.cloud import logging
 import os
 from datetime import datetime
 import json
+import rsa
 
 PROJECT_ID = os.getenv("GCP_PROJECT")
 EMAILS_SENT_COLLECTION_NAME = os.getenv("EMAIL_COLLECTION")
 
 
-@functions_framework.http
-def handle_request(request):
-    args = request.args
+def decode_message(message):
+    privkey_raw = str.encode(os.environ.get("PRIVATE_KEY"))
+    privkey = rsa.PrivateKey.load_pkcs1(privkey_raw)
+    dectex = rsa.decrypt(bytes.fromhex(message), privkey)
+    return dectex.decode()
+
+
+def get_args(request):
+    json_raw = decode_message(request.script_root[1:])
+    args = json.loads(json_raw)
     uuid = args["uuid"]
     admin = args["admin"]
+    return uuid, admin
+
+
+@functions_framework.http
+def handle_request(request):
+    uuid, admin = get_args(request)
 
     db = firestore.Client(project=PROJECT_ID)
     doc_ref = db.collection(EMAILS_SENT_COLLECTION_NAME).document(uuid)
