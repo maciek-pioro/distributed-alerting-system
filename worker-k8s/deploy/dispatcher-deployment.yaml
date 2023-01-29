@@ -37,6 +37,7 @@ spec:
                 - /app/healthcheck.py
             initialDelaySeconds: 60
             periodSeconds: 180
+            timeoutSeconds: 180
       volumes:
         - name: google-credentials
           secret:
