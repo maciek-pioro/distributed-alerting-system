@@ -21,6 +21,7 @@ def create_message_content(event_details, event_id):
 
 def send_sms(content, phone_number):
     try:
+        print(f"Will try sending sms to {phone_number}")
         # Your Account SID from twilio.com/console
         account_sid = os.environ.get("TWILIO_ACCOUNT_SID")
         # Your Auth Token from twilio.com/console
@@ -91,6 +92,8 @@ def check_send_event(request):
             admin_phone2 = event_details.get("admin_phone2")
             if admin_phone2:
                 send_sms(message_content, admin_phone2)
+            else:
+                print("No phone number provided")
             set_email_sent(event_id, logger)
             logger.log_text(
                 json.dumps(

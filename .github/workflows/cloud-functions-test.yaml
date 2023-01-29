@@ -75,7 +75,7 @@ jobs:
           --region=$REGION \
           --memory=256Mi \
           --source='cloud-functions/ack-endpoint' \
-          --entry-point='handle_request'
+          --entry-point='handle_request' \
           --set-secrets=$SECRETS
 
       - name: "Execute"

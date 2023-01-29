@@ -8,7 +8,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from google.cloud import firestore, tasks_v2, logging
 from google.protobuf import duration_pb2, timestamp_pb2
-from datetime import datetime
+import datetime
 from twilio.rest import Client as TwilioClient
 
 
@@ -41,6 +41,7 @@ def send_email(content, email):
 
 def send_sms(content, phone_number):
     try:
+        print(f"Will try sending sms to {phone_number}")
         # Your Account SID from twilio.com/console
         account_sid = os.environ.get("TWILIO_ACCOUNT_SID")
         # Your Auth Token from twilio.com/console
@@ -55,7 +56,7 @@ def send_sms(content, phone_number):
 
         print(message.sid)
     except Exception as e:
-        print(e)
+        print("Exception with sms", e)
 
 
 def set_notification_sent(client_details, event_id):
@@ -152,13 +153,15 @@ def save_send_query_event(cloud_event):
     admin_phone1 = client_details.get("admin_phone1")
     if admin_phone1:
         send_sms(message_content, admin_phone1)
+    else:
+        print("No admin phone")
     set_notification_sent(client_details, event_id)
     logger.log_text(
         json.dumps(
             {
                 "service": client_details["url"],
                 "outage": event_id,
-                "event": f"first email sent {datetime.now()}",
+                "event": f"first email sent {datetime.datetime.now()}",
             }
         )
     )
