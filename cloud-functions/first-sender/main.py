@@ -4,29 +4,47 @@ import uuid
 import json
 import datetime
 import functions_framework
+import rsa
+
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from google.cloud import firestore, tasks_v2, logging
 from google.protobuf import duration_pb2, timestamp_pb2
-from datetime import datetime
+import datetime
+from twilio.rest import Client as TwilioClient
 
-#
-def create_email_content(client_details, event_id):
+
+def encode_message(message):
+    pubkey_raw = os.environ.get("PUBLIC_KEY")
+    pk_raw = pubkey_raw.replace('\\n', '\n').encode('ascii')
+    pubkey = rsa.PublicKey.load_pkcs1(pk_raw)
+    enctex = rsa.encrypt(message.encode(), pubkey)
+    hex_message = enctex.hex()
+    return hex_message
+
+
+def create_url(event_id):
+    json_msg = json.dumps({"uuid": event_id, "admin": 1})
+    obfuscated_event = encode_message(json_msg)
+    return f"{os.environ.get('ACK_ENDPOINT')}/?event_info={obfuscated_event}"
+
+
+def create_message_content(client_details, event_id):
     email_content = (
             f"Your service {client_details['url']} is down.\n"
             + "Click here to acknowledge the outage: "
-            + f"{os.environ.get('ACK_ENDPOINT')}/?uuid={event_id}&admin=1"
+            + create_url(event_id)
     )
 
     return email_content
 
 
-def send_email(client_details, event_id):
+def send_email(content, email):
     message = Mail(
         from_email=os.environ.get("EMAIL_SENDER"),
-        to_emails=client_details["admin_mail1"],
+        to_emails=email,
         subject="Service is down",
-        html_content=create_email_content(client_details, event_id),
+        html_content=content,
     )
     try:
         sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
@@ -38,7 +56,27 @@ def send_email(client_details, event_id):
         print(e)
 
 
-def set_email_sent(client_details, event_id):
+def send_sms(content, phone_number):
+    try:
+        print(f"Will try sending sms to {phone_number}")
+        # Your Account SID from twilio.com/console
+        account_sid = os.environ.get("TWILIO_ACCOUNT_SID")
+        # Your Auth Token from twilio.com/console
+        auth_token = os.environ.get("TWILIO_AUTH_TOKEN")
+        from_number = os.environ.get("TWILIO_NUMBER")
+
+        client = TwilioClient(username=account_sid, password=auth_token)
+
+        message = client.messages.create(
+            to=phone_number, from_=from_number, body=content
+        )
+
+        print(message.sid)
+    except Exception as e:
+        print("Exception with sms", e)
+
+
+def set_notification_sent(client_details, event_id):
     db = firestore.Client(project=os.environ.get("GCP_PROJECT"))
     db.collection(os.environ.get("EMAIL_COLLECTION")).document(event_id).create(
         {
@@ -46,13 +84,16 @@ def set_email_sent(client_details, event_id):
             "ack": False,
             "ack_by": -1,  # Non-existing admin
             "url": client_details.get("url", "service unknown"),
+            "admin_phone2": client_details.get("admin_phone2"),
             "admin_mail2": client_details["admin_mail2"],
-            "allowed_response_time_minutes": client_details["allowed_response_time_minutes"],
+            "allowed_response_time_minutes": client_details[
+                "allowed_response_time_minutes"
+            ],
         }
     )
 
 
-def queue_next_email(client_details, event_id):
+def queue_next_notification(client_details, event_id):
     # Create a client.
     client = tasks_v2.CloudTasksClient()
 
@@ -60,7 +101,7 @@ def queue_next_email(client_details, event_id):
     queue = os.environ.get("EMAIL_QUEUE")
     location = os.environ.get("REGION")
     url = os.environ.get("SECOND_SENDER_ENDPOINT")
-    payload = {'event_id': event_id, 'service': client_details['url']}
+    payload = {"event_id": event_id, "service": client_details["url"]}
     in_seconds = client_details["allowed_response_time_minutes"] * 60
     task_name = event_id
     deadline = 5 * in_seconds
@@ -124,8 +165,22 @@ def save_send_query_event(cloud_event):
     b64decoded = base64.b64decode(b64encoded)
     client_details = json.loads(b64decoded)["message"]
     event_id = str(uuid.uuid4())
-    send_email(client_details, event_id)
-    set_email_sent(client_details, event_id)
-    logger.log_text(json.dumps({"service": client_details['url'], "outage": event_id, "event": f"first email sent {datetime.now()}"}))
+    message_content = create_message_content(client_details, event_id)
+    send_email(message_content, client_details["admin_mail1"])
+    admin_phone1 = client_details.get("admin_phone1")
+    if admin_phone1:
+        send_sms(message_content, admin_phone1)
+    else:
+        print("No admin phone")
+    set_notification_sent(client_details, event_id)
+    logger.log_text(
+        json.dumps(
+            {
+                "service": client_details["url"],
+                "outage": event_id,
+                "event": f"first email sent {datetime.datetime.now()}",
+            }
+        )
+    )
 
-    queue_next_email(client_details, event_id)
+    queue_next_notification(client_details, event_id)

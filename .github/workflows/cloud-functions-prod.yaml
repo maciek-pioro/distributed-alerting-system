@@ -10,6 +10,19 @@ env:
   EMAILS_SENT_COLLECTION: emails_sent
   GCP_PROJECT: irio-solution
   EMAIL_QUEUE: second-email
+  SECRETS: "ACK_ENDPOINT=ACK_ENDPOINT_PROD:latest,\
+    EMAIL_SENDER=EMAIL_SENDER:latest,\
+    SENDGRID_API_KEY=SENDGRID_API_KEY:latest,\
+    TWILIO_ACCOUNT_SID=TWILIO_ACCOUNT_SID:latest,\
+    TWILIO_AUTH_TOKEN=TWILIO_AUTH_TOKEN:latest,\
+    TWILIO_NUMBER=TWILIO_NUMBER:latest,\
+    GCP_PROJECT=GCP_PROJECT:latest,\
+    EMAIL_COLLECTION=EMAIL_COLLECTION_PROD:latest,\
+    EMAIL_QUEUE=EMAIL_QUEUE_PROD:latest,\
+    REGION=GCP_REGION:latest,\
+    SECOND_SENDER_ENDPOINT=SECOND_SENDER_ENDPOINT_PROD:latest,\
+    PUBLIC_KEY=PUBLIC_KEY_PROD:latest,\
+    PRIVATE_KEY=PRIVATE_KEY_PROD:latest"
 
 jobs:
   deploy_cloud_functions_src_code:
@@ -52,7 +65,6 @@ jobs:
           --source='cloud-functions/second-sender' \
           --entry-point='check_send_event' \
           --trigger-http
-
 
       - id: "deploy_ack_endpoint"
         run: |-

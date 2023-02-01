@@ -4,23 +4,50 @@ from google.cloud import logging
 import os
 from datetime import datetime
 import json
+import rsa
 
 PROJECT_ID = os.getenv("GCP_PROJECT")
-EMAILS_SENT_COLLECTION_NAME = os.getenv("EMAILS_SENT_COLLECTION")
+EMAILS_SENT_COLLECTION_NAME = os.getenv("EMAIL_COLLECTION")
+
+
+def decode_message(message):
+    print('message, type', message, type(message))
+    privkey_raw = os.environ.get("PRIVATE_KEY")
+    print('privkey_raw, type',privkey_raw, type(privkey_raw))
+    pk_raw = privkey_raw.replace('\\n', '\n').encode('ascii')
+    print('pk_raw, type',pk_raw, type(pk_raw))
+    privkey = rsa.PrivateKey.load_pkcs1(pk_raw)
+    dectex = rsa.decrypt(bytes.fromhex(message), privkey)
+    return dectex.decode()
+
+
+
+def get_args(request):
+    json_raw = decode_message(request.args.get("event_info"))
+    args = json.loads(json_raw)
+    uuid = args["uuid"]
+    admin = args["admin"]
+    return uuid, admin
 
 
 @functions_framework.http
 def handle_request(request):
-    args = request.args
-    uuid = args["uuid"]
-    admin = args["admin"]
+    uuid, admin = get_args(request)
 
     db = firestore.Client(project=PROJECT_ID)
     doc_ref = db.collection(EMAILS_SENT_COLLECTION_NAME).document(uuid)
-    doc_ref.set({u'ack_by': admin, 'ack': True}, merge=True)
+    doc_ref.set({"ack_by": admin, "ack": True}, merge=True)
 
     logging_client = logging.Client()
     logger = logging_client.logger("outages")
-    logger.log_text(json.dumps({"service": doc_ref.get().to_dict()['url'], "outage": uuid, "event": f"{admin} admin ack {datetime.now()}"}))
+    logger.log_text(
+        json.dumps(
+            {
+                "service": doc_ref.get().to_dict()["url"],
+                "outage": uuid,
+                "event": f"{admin} admin ack {datetime.now()}",
+            }
+        )
+    )
 
-    return '<html><head>Thank you for acknowledging the outage.</head></html>'
+    return "<html><head>Thank you for acknowledging the outage.</head></html>"

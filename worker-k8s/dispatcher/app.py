@@ -84,6 +84,7 @@ def main():
     services = get_services()
     service_worker_mapping = {service: None for service in services}
     service_worker_mapping.update(get_current_worker_mapping())
+    run = 0
     while True:
         print("Checking workers")
         workers = get_ready_workers()
@@ -135,6 +136,10 @@ def main():
         for service, worker in service_worker_mapping.items():
             if worker is None:
                 del service_worker_mapping[service]
+
+        with open("/app/health", "w") as f:
+            f.write(str(run))
+        run += 1
         time.sleep(60)
 
 

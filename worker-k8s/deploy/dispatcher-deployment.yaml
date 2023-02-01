@@ -30,6 +30,14 @@ spec:
             - name: google-credentials
               mountPath: "/etc/keys"
               readOnly: true
+          livenessProbe:
+            exec:
+              command:
+                - python3
+                - /app/healthcheck.py
+            initialDelaySeconds: 60
+            periodSeconds: 180
+            timeoutSeconds: 180
       volumes:
         - name: google-credentials
           secret:

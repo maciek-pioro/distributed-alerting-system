@@ -30,7 +30,7 @@ def find_appropriate_log(logging_client, logger_name, pattern):
 
 def clear_test_tables(firestore_client, bigquery_client, SERVICES_DB_NAME, SERVICES_COLLECTION_NAME):
     try:
-        query = f"DELETE FROM `{SERVICES_DB_NAME}` WHERE true"
+        query = f"TRUNCATE TABLE`{SERVICES_DB_NAME}`"
         query_job = bigquery_client.query(query)
         res = query_job.result()
         print(json.dumps({"message": f"deleted rows from {SERVICES_DB_NAME}, res: {res}", "severity": "DEBUG"}))

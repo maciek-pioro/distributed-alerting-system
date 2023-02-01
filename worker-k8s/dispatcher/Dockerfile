@@ -8,6 +8,9 @@ COPY ./requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt
 # Expose the Docker container for the application to run on port 5000
 COPY ./app.py /app/app.py
+# copy command to run the healthcheck, ensure the health file is created
+COPY ./healthcheck.py /app/healthcheck.py
+RUN touch /app/health
 # The command required to run the Dockerized application
 EXPOSE 5000
 # show print
